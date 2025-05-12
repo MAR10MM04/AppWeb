@@ -7,8 +7,8 @@
 *.sln.docstates
 
 # Archivos de compilación
-bin/
-obj/
+[Bb]in/
+[Oo]bj/
 [Bb]uild/
 [Bb]uilds/
 *.dll
