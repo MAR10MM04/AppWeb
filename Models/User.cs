@@ -7,6 +7,7 @@ namespace AppWeb.Models
 {
     public class User
     {
+        
           public int Id_User { get; set; }
             
           public string Name { get; set; }
@@ -16,5 +17,8 @@ namespace AppWeb.Models
            public string Password { get; set; }
 
             public string   upp { get; set; }
+
+            
+        public ICollection<Lote> Lote { get; set; } 
     }
 }

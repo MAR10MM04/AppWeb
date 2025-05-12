@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace AppWeb.Models
 {
     public class Lote
     {
+        
         public int Id_Lote { get; set; }
         public int Id_User { get; set; }       // FK a User
         public string Nombre { get; set; }
@@ -18,6 +20,6 @@ namespace AppWeb.Models
 
         // Propiedades de navegación
         public User User { get; set; }
-        public ICollection<Animal> Animales { get; set; } // Un Lote tiene muchos Animales
+        public ICollection<Animal> Animales { get; set; } 
     }
 }

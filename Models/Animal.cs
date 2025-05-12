@@ -7,6 +7,7 @@ namespace AppWeb.Models
 {
     public class Animal
     {
+      
         public int Id_Animal { get; set; }
         public int Arete { get; set; }
         public int Peso { get; set; }
