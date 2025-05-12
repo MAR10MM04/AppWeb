@@ -15,6 +15,6 @@ namespace AppWeb.Models
 
            public string Password { get; set; }
 
-            public int   upp { get; set; }
+            public string   upp { get; set; }
     }
 }

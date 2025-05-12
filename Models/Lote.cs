@@ -8,14 +8,16 @@ namespace AppWeb.Models
     public class Lote
     {
         public int Id_Lote { get; set; }
-        public int Id_User { get; set; }
-        public int Id_Animal { get; set; }
-        public string upp { get; set; }
+        public int Id_User { get; set; }       // FK a User
         public string Nombre { get; set; }
         public int Remo { get; set; }
-        public DateTime  Fecha_Entrada { get; set; }
+        public DateTime Fecha_Entrada { get; set; }
         public DateTime Fecha_Salida { get; set; }
+        public string upp { get; set; }
         public string Comunidad { get; set; }
-    }
 
+        // Propiedades de navegación
+        public User User { get; set; }
+        public ICollection<Animal> Animales { get; set; } // Un Lote tiene muchos Animales
+    }
 }
