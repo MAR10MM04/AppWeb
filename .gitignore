@@ -1,0 +1,80 @@
+
+
+# Archivos de configuración de usuario
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de compilación
+bin/
+obj/
+[Bb]uild/
+[Bb]uilds/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.ilk
+*.log
+*.vspscc
+*.vssscc
+*.tmp
+*.csproj.user
+*.dbmdl
+*.opendb
+*.opensdf
+*.sdf
+
+# Configuración de Visual Studio
+.vs/
+.vscode/
+*.code-workspace
+
+# Archivos de paquetes NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Archivos de publicación
+*.publishsettings
+*.pubxml
+*.pubxml.user
+
+# Archivos de configuración de IIS
+*.vspscc
+*.vssscc
+
+# Archivos de configuración de Azure
+*.azure*
+
+# Archivos de logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Archivos generados por el sistema operativo
+[Tt]humbs.db
+ehthumbs.db
+*.DS_Store
+*.directory
+
+# Archivos de configuración de Rider/JetBrains
+.idea/
+*.sln.iml
+
+# Archivos de migraciones de Entity Framework
+Migrations/
+
+# Archivos de configuración de usuario local
+appsettings.Development.json
+appsettings.Local.json
+
