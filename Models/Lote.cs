@@ -15,11 +15,12 @@ namespace AppWeb.Models
         public int Remo { get; set; }
         public DateTime Fecha_Entrada { get; set; }
         public DateTime Fecha_Salida { get; set; }
-        public string upp { get; set; }
+        public string Upp { get; set; }
         public string Comunidad { get; set; }
 
         // Propiedades de navegación
         public User User { get; set; }
-        public ICollection<Animal> Animales { get; set; } 
+        public ICollection<Animal> Animales { get; set; }
+   
     }
 }

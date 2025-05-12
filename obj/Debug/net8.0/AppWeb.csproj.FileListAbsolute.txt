@@ -255,3 +255,4 @@ C:\Codes\AppWeb\obj\Debug\net8.0\AppWeb.csproj.Up2Date
 C:\Codes\AppWeb\obj\Debug\net8.0\AppWeb.genruntimeconfig.cache
 C:\Codes\AppWeb\obj\Debug\net8.0\ref\AppWeb.dll
 C:\Codes\AppWeb\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Proyectos\AppWeb\bin\Debug\net8.0\BCrypt.Net-Next.dll

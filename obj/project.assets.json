@@ -4178,19 +4178,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\PENDERTUGA\\.nuget\\packages\\": {}
+    "C:\\Users\\angel\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Codes\\AppWeb\\AppWeb.csproj",
+      "projectUniqueName": "C:\\Proyectos\\AppWeb\\AppWeb.csproj",
       "projectName": "AppWeb",
-      "projectPath": "C:\\Codes\\AppWeb\\AppWeb.csproj",
-      "packagesPath": "C:\\Users\\PENDERTUGA\\.nuget\\packages\\",
-      "outputPath": "C:\\Codes\\AppWeb\\obj\\",
+      "projectPath": "C:\\Proyectos\\AppWeb\\AppWeb.csproj",
+      "packagesPath": "C:\\Users\\angel\\.nuget\\packages\\",
+      "outputPath": "C:\\Proyectos\\AppWeb\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\PENDERTUGA\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\angel\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
