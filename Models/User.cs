@@ -17,7 +17,7 @@ namespace AppWeb.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        public string upp { get; set; }
+        public string Upp { get; set; } // Corregido a "Upp"
 
         public ICollection<Lote> Lote { get; set; }
     }

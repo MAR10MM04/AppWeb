@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using AppWeb.Data;
 using AppWeb.Models;
+using BCrypt.Net; // Agrega esta línea al inicio
 
 namespace AppWeb.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase // Cambiado de Controller a ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly MyDbContext _context;
 
@@ -17,36 +19,66 @@ namespace AppWeb.Controllers
         }
 
         // GET: api/Users
+              // GET: api/Users
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
-        }
-
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            return user == null ? NotFound() : Ok(user);
+            return await _context.Users
+                .Select(u => new UserResponseDto
+                {
+                    Id_User = u.Id_User,
+                    Name = u.Name,
+                    Email = u.Email,
+                    Upp = u.Upp
+                })
+                .ToListAsync();
         }
 
         // POST: api/Users
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<User>> CreateUser(User user)
+        public async Task<ActionResult<UserResponseDto>> CreateUser([FromBody] CreateUserDto userDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.Users.Add(user);
+            var user = new User
+            {
+                Name = userDto.Name,
+                Email = userDto.Email,
+               Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password), // Usa BCrypt
+                Upp = userDto.Upp
+            };
+
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id_User }, user);
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id_User }, new UserResponseDto
+            {
+                Id_User = user.Id_User,
+                Name = user.Name,
+                Email = user.Email,
+                Upp = user.Upp
+            });
+        }
+
+        // GET: api/Users/5
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserResponseDto>> GetUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null)
+                return NotFound();
+
+            return new UserResponseDto
+            {
+                Id_User = user.Id_User,
+                Name = user.Name,
+                Email = user.Email,
+                Upp = user.Upp
+            };
         }
 
         // PUT: api/Users/5
@@ -54,26 +86,21 @@ namespace AppWeb.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUser(int id, User user)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto updateDto)
         {
-            if (id != user.Id_User)
-                return BadRequest("ID de usuario no coincide");
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            _context.Entry(user).State = EntityState.Modified;
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                    return NotFound();
-                throw;
-            }
+            user.Name = updateDto.Name;
+            user.Email = updateDto.Email;
+            user.Upp = updateDto.Upp;
+
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -94,10 +121,45 @@ namespace AppWeb.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        // DTOs
+        public class CreateUserDto
+{
+    [Required(ErrorMessage = "El nombre es obligatorio")]
+    [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
+    public required string Name { get; set; } // Usa "required"
+
+    [Required(ErrorMessage = "El email es obligatorio")]
+    [EmailAddress(ErrorMessage = "Formato inválido")]
+    public required string Email { get; set; }
+
+    [Required(ErrorMessage = "La contraseña es obligatoria")]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "Mínimo 6 caracteres")]
+    public required string Password { get; set; }
+
+    [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
+    public string? Upp { get; set; } // Nullable
+}
+
+       public class UpdateUserDto
+{
+    [Required(ErrorMessage = "El nombre es obligatorio")]
+    [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
+    public required string Name { get; set; }
+
+    [Required(ErrorMessage = "El email es obligatorio")]
+    [EmailAddress(ErrorMessage = "Formato inválido")]
+    public required string Email { get; set; }
+
+    [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
+    public string? Upp { get; set; } // Nullable
+}
+        public class UserResponseDto
         {
-            return _context.Users.Any(e => e.Id_User == id);
+            public int Id_User { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string Upp { get; set; }
         }
     }
 }
-
