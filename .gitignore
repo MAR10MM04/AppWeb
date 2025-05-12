@@ -72,7 +72,7 @@ ehthumbs.db
 *.sln.iml
 
 # Archivos de migraciones de Entity Framework
-Migrations/
+
 
 # Archivos de configuración de usuario local
 appsettings.Development.json
