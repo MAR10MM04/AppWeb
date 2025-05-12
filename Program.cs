@@ -1,4 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using AppWeb.Data;
+using Microsoft.Extensions.DependencyInjection;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<MyDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+        .LogTo(Console.WriteLine, LogLevel.Information));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
