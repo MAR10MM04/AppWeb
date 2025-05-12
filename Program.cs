@@ -1,9 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using AppWeb.Data;
+using AppWeb.Models;
+using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuración de Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Usuarios", Version = "v1" });
+});
+
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MyDbContext>(options =>
@@ -12,17 +22,20 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+// Configuración CORRECTA de Swagger (siempre habilitado):
+app.UseSwagger(); // Fuera del bloque condicional
+app.UseSwaggerUI(c => {
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Usuarios v1");
+});
 
+if (!app.Environment.IsDevelopment()) 
+{
+    // Configuración específica para producción (ej: manejo de errores)
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

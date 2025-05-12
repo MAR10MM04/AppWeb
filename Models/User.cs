@@ -1,24 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppWeb.Models
 {
     public class User
     {
-        
-          public int Id_User { get; set; }
-            
-          public string Name { get; set; }
-             
-           public string Email { get; set; }
+        public int Id_User { get; set; }
 
-           public string Password { get; set; }
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        public string Name { get; set; }
 
-            public string   upp { get; set; }
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
+        public string Email { get; set; }
 
-            
-        public ICollection<Lote> Lote { get; set; } 
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        public string upp { get; set; }
+
+        public ICollection<Lote> Lote { get; set; }
     }
 }
