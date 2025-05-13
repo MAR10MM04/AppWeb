@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using AppWeb.Data;
 using AppWeb.Models;
-using BCrypt.Net; // Agrega esta línea al inicio
+using BCrypt.Net;
 
 namespace AppWeb.Controllers
 {
@@ -12,14 +17,15 @@ namespace AppWeb.Controllers
     public class UsersController : ControllerBase
     {
         private readonly MyDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(MyDbContext context)
+        public UsersController(MyDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: api/Users
-              // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
         {
@@ -45,7 +51,7 @@ namespace AppWeb.Controllers
             {
                 Name = userDto.Name,
                 Email = userDto.Email,
-               Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password), // Usa BCrypt
+                Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
                 Upp = userDto.Upp
             };
 
@@ -121,45 +127,113 @@ namespace AppWeb.Controllers
             return NoContent();
         }
 
+        // POST: api/Users/login
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+            
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
+                return Unauthorized(new { message = "Credenciales inválidas" });
+
+            var token = GenerateJwtToken(user);
+            
+            return Ok(new LoginResponseDto
+            {
+                Token = token,
+                User = new UserResponseDto
+                {
+                    Id_User = user.Id_User,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Upp = user.Upp
+                }
+            });
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration["Jwt:Key"]!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim("id", user.Id_User.ToString()),
+                new Claim(ClaimTypes.Role, "User")
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"])),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         // DTOs
         public class CreateUserDto
-{
-    [Required(ErrorMessage = "El nombre es obligatorio")]
-    [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
-    public required string Name { get; set; } // Usa "required"
+        {
+            [Required(ErrorMessage = "El nombre es obligatorio")]
+            [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
+            public required string Name { get; set; }
 
-    [Required(ErrorMessage = "El email es obligatorio")]
-    [EmailAddress(ErrorMessage = "Formato inválido")]
-    public required string Email { get; set; }
+            [Required(ErrorMessage = "El email es obligatorio")]
+            [EmailAddress(ErrorMessage = "Formato inválido")]
+            public required string Email { get; set; }
 
-    [Required(ErrorMessage = "La contraseña es obligatoria")]
-    [DataType(DataType.Password)]
-    [MinLength(6, ErrorMessage = "Mínimo 6 caracteres")]
-    public required string Password { get; set; }
+            [Required(ErrorMessage = "La contraseña es obligatoria")]
+            [DataType(DataType.Password)]
+            [MinLength(6, ErrorMessage = "Mínimo 6 caracteres")]
+            public required string Password { get; set; }
 
-    [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
-    public string? Upp { get; set; } // Nullable
-}
+            [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
+            public string? Upp { get; set; }
+        }
 
-       public class UpdateUserDto
-{
-    [Required(ErrorMessage = "El nombre es obligatorio")]
-    [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
-    public required string Name { get; set; }
+        public class UpdateUserDto
+        {
+            [Required(ErrorMessage = "El nombre es obligatorio")]
+            [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
+            public required string Name { get; set; }
 
-    [Required(ErrorMessage = "El email es obligatorio")]
-    [EmailAddress(ErrorMessage = "Formato inválido")]
-    public required string Email { get; set; }
+            [Required(ErrorMessage = "El email es obligatorio")]
+            [EmailAddress(ErrorMessage = "Formato inválido")]
+            public required string Email { get; set; }
 
-    [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
-    public string? Upp { get; set; } // Nullable
-}
+            [StringLength(20, ErrorMessage = "Máximo 20 caracteres")]
+            public string? Upp { get; set; }
+        }
+
         public class UserResponseDto
         {
             public int Id_User { get; set; }
-            public string Name { get; set; }
-            public string Email { get; set; }
-            public string Upp { get; set; }
+            public string Name { get; set; } = null!;
+            public string Email { get; set; } = null!;
+            public string Upp { get; set; } = null!;
+        }
+
+        public class LoginDto
+        {
+            [Required(ErrorMessage = "El email es obligatorio")]
+            [EmailAddress(ErrorMessage = "Formato inválido")]
+            public required string Email { get; set; }
+
+            [Required(ErrorMessage = "La contraseña es obligatoria")]
+            [DataType(DataType.Password)]
+            public required string Password { get; set; }
+        }
+
+        public class LoginResponseDto
+        {
+            public string Token { get; set; } = null!;
+            public UserResponseDto User { get; set; } = null!;
         }
     }
 }
